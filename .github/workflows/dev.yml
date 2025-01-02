@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, staging, develop]
+
+env:
+  PACKAGE_MANAGER: pnpm # npm | pnpm | yarn
+
+jobs:
+  pull_request_checks:
+    runs-on: ubuntu-latest
+    name: "Pull Request Checks"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull Request Check
+        uses: ./.github/workflows/modules/pull-request-convention
+
+  building:
+    runs-on: ubuntu-latest
+    name: "Build Projects"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build projects
+        uses: ./.github/workflows/modules/build-projects
+        with:
+          package_manager: ${{env.PACKAGE_MANAGER}}
+
+  linting:
+    runs-on: ubuntu-latest
+    name: "Lint projects"
+    permissions:
+      contents: write
+    needs:
+      - pull_request_checks
+      - building
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Linting
+        uses: ./.github/workflows/modules/lint
+        with:
+          package_manager: ${{env.PACKAGE_MANAGER}}
+
+      - name: Auto Commit Changes
+        uses: ./.github/workflows/utils/auto-commit
+        with:
+          message: "fix: Lint/Prettier"

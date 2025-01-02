@@ -1,0 +1,33 @@
+name: Build projects NPM
+description: Build projects NPM
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Get npm cache directory
+      id: npm-cache-dir
+      shell: bash
+      run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+
+    - uses: actions/cache@v4
+      id: npm-cache
+      if: steps.npm-cache.outputs.cache-hit != 'true'
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Dependencies
+      if: steps.cache_node_modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm install
+
+    - name: Determine package manager
+      shell: bash
+      run: echo "PACKAGE_MANAGER=npm run" >> $GITHUB_ENV

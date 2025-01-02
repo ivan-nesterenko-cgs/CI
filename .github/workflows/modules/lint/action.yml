@@ -1,0 +1,23 @@
+name: Lint
+description: Lint
+
+inputs:
+  package_manager:
+    description: The package manager to use (npm, yarn, pnpm)
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Project
+      uses: ./.github/workflows/utils/node-setup
+      with:
+        package_manager: ${{inputs.package_manager}}
+
+    - name: Prettier
+      shell: bash
+      run: ${PACKAGE_MANAGER} prettier:fix
+
+    - name: Lint
+      shell: bash
+      run: ${PACKAGE_MANAGER} lint:fix

@@ -1,0 +1,17 @@
+name: Pull Request Convention
+description: Checking pull request style convention
+
+runs:
+  using: "composite"
+  steps:
+    - name: Pull Request Title Validation
+      uses: Slashgear/action-check-pr-title@v4.3.0
+      with:
+        regexp: "^(feat|fix|ref): [A-Z][a-z0-9\\s_-]*"
+        helpMessage: "Example: '(feat|fix|ref): Example of title'"
+
+    - name: Branch Name Validation
+      uses: deepakputhraya/action-branch-name@master
+      with:
+        regex: "^(feat|fix|ref)/[a-z0-9]+(-[a-z0-9]+)*$"
+        ignore: main,develop,staging

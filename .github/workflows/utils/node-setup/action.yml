@@ -1,0 +1,23 @@
+name: Build project
+description: Build project
+
+inputs:
+  package_manager:
+    description: The package manager to use (npm, yarn, pnpm)
+    required: true
+    default: "pnpm"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js + yarn
+      if: ${{ inputs.package_manager == 'yarn' }}
+      uses: ./.github/workflows/utils/node-setup/yarn
+
+    - name: Setup Node.js + npm
+      if: ${{ inputs.package_manager == 'npm' }}
+      uses: ./.github/workflows/utils/node-setup/npm
+
+    - name: Setup Node.js + pnpm
+      if: ${{ inputs.package_manager == 'pnpm' }}
+      uses: ./.github/workflows/utils/node-setup/pnpm
