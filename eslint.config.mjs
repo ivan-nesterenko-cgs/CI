@@ -3,19 +3,33 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import namingConventionPlugin from "eslint-plugin-naming-convention";
 import perfectionist from "eslint-plugin-perfectionist";
+import globals from "globals";
 import unusedImports from "eslint-plugin-unused-imports";
-import tslint from "typescript-eslint";
 
-export default tslint.config(
+export default [
   eslint.configs.recommended,
   perfectionist.configs["recommended-natural"],
   {
-    ignores: ["**/node_modules", "**/dist", "**/*d.ts", "**/build", "**/migrations", "**/eslint.config.mjs"],
+    ignores: [
+      "**/node_modules",
+      "**/dist",
+      "**/*d.ts",
+      "**/build",
+      "**/migrations",
+      "**/eslint.config.mjs",
+      "**/tailwind.config.js",
+      "**/.yarn",
+    ],
   },
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     languageOptions: {
       parser: tsParser,
+      ecmaVersion: 2023,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -31,13 +45,6 @@ export default tslint.config(
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      "no-multiple-empty-lines": [
-        "warn",
-        {
-          max: 1,
-          maxEOF: 0,
-        },
-      ],
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/naming-convention": [
         "error",
@@ -51,10 +58,14 @@ export default tslint.config(
         },
         {
           format: ["PascalCase"],
-          selector: ["enum", "typeLike", "interface"],
+          selector: ["typeLike", "interface"],
         },
         {
-          format: ["PascalCase", "camelCase"],
+          format: ["UPPER_CASE", "PascalCase"],
+          selector: ["enum"],
+        },
+        {
+          format: ["PascalCase", "camelCase", "UPPER_CASE"],
           selector: "variableLike",
         },
       ],
@@ -95,6 +106,13 @@ export default tslint.config(
       ],
       "no-cond-assign": ["error", "always"],
       "no-duplicate-imports": "error",
+      "no-multiple-empty-lines": [
+        "warn",
+        {
+          max: 1,
+          maxEOF: 0,
+        },
+      ],
       "no-unused-expressions": "off",
       "no-unused-vars": "off",
       "no-use-before-define": "off",
@@ -135,4 +153,4 @@ export default tslint.config(
       },
     },
   },
-);
+];
