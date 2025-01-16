@@ -48,6 +48,8 @@ jobs:
           package_manager: ${{env.PACKAGE_MANAGER}}
 
       - name: Auto Commit Changes
-        uses: ./.github/workflows/utils/auto-commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        if: github.base_ref == 'develop'
         with:
-          message: "fix: Lint/Prettier"
+          file_pattern: '*.ts *.tsx'
+          commit_message: 'fix: Prettier/Eslint'
