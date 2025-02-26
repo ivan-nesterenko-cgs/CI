@@ -7,7 +7,7 @@ declare global {
 
   type PartialRecord<T extends string | number | symbol, K = unknown> = { [key in T]?: K };
 
-type PartialRecord<K extends keyof unknown, V = unknown> = { [key in K]?: V };
+type PartialRecord<K extends keyof any, V = unknown> = { [key in K]?: V };
   
 type OR<T, K> =
   | (T & { [P in Exclude<keyof K, keyof T>]?: never })
