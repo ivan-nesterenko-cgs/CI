@@ -5,6 +5,7 @@ import { DeepPartial, FindOneOptions, FindManyOptions, Repository, FindOptionsWh
 import { CreateExampleDto } from "./dto";
 import { convertJoinedStringToObject } from "../../../../packages/utils/convertStringToObject";
 import { Order } from "../../../../packages/types/order";
+import { BaseService } from "../core/service";
 
 type FindOneOptionsExtended = {
   entityManager?: EntityManager;
@@ -22,14 +23,17 @@ type FindManyOptionsExtended = {
   order?: Order;
   select?: ExtractKeys<Example>[];
   sortBy?: ExtractKeys<Example>[];
+  search?: string;
 };
 
 @Injectable()
-export class ExampleService implements BaseService {
+export class ExampleService extends BaseService {
   constructor(
     @InjectRepository(Example)
     private exampleRepository: Repository<Example>,
-  ) {}
+  ) {
+    super();
+  }
 
   async findOneExample(
     where: FindOneOptions<Example>,
@@ -45,6 +49,7 @@ export class ExampleService implements BaseService {
       select = [],
       sortBy = [],
       order,
+      search,
       ...params
     }: FindManyOptionsExtended = {},
   ) {

@@ -29,8 +29,9 @@ export class ExampleController {
     @Query("skip", new ParseIntPipe({ optional: true })) skip?: number,
     @Query("order", new ParseEnumPipe({ optional: true })) order?: Order,
     @Query("sortBy", new ParseArrayPipe({ separator: ",", optional: true })) sortBy?: ExtractKeys<Example>[],
+    @Query("search") search?: string,
   ) {
-    return this.exampleService.findManyExamplesOrThrow({}, { take, skip, order, sortBy });
+    return this.exampleService.findManyExamplesOrThrow({}, { take, skip, order, sortBy, search });
   }
 
   @Patch("/:id")
