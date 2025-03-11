@@ -1,17 +1,31 @@
+type ConcatKeys<Parent, Child> = Parent extends string | number
+  ? Child extends string | number
+    ? `${Parent}.${Child}`
+    : never
+  : never;
+
 declare global {
   interface Number {
     toLocaleString(locales?: "en-US", options?: Intl.NumberFormatOptions): string;
   }
 
+  type ExtractKeys<T, ParentKey = ""> = T extends object
+    ? {
+        [Key in keyof T]: Key extends string | number
+          ? ParentKey extends ""
+            ? Key | ExtractKeys<T[Key], Key>
+            : ConcatKeys<ParentKey, Key> | ExtractKeys<T[Key], ConcatKeys<ParentKey, Key>>
+          : never;
+      }[keyof T]
+    : never;
+
   type Except<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-  type PartialRecord<T extends string | number | symbol, K = unknown> = { [key in T]?: K };
+  type PartialRecord<K extends keyof any, V = unknown> = { [key in K]?: V };
 
-type PartialRecord<K extends keyof any, V = unknown> = { [key in K]?: V };
-  
-type OR<T, K> =
-  | (T & { [P in Exclude<keyof K, keyof T>]?: never })
-  | (K & { [P in Exclude<keyof T, keyof K>]?: never });
+  type OR<T, K> =
+    | (T & { [P in Exclude<keyof K, keyof T>]?: never })
+    | (K & { [P in Exclude<keyof T, keyof K>]?: never });
 
   type DeepPartial<T> = T extends object
     ? {
@@ -37,7 +51,9 @@ type OR<T, K> =
 
   interface ObjectConstructor {
     keys<T extends object>(o: T): (keyof T)[];
-    entries<TValue, TKey>(o: Record<TKey, TValue> | ArrayLike<TValue>): [TKey, TValue][];
+    entries<TValue, TKey extends string | number | symbol>(
+      o: Record<TKey, TValue> | ArrayLike<TValue>,
+    ): [TKey, TValue][];
   }
 
   interface JSON {
