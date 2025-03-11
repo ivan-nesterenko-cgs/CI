@@ -23,9 +23,11 @@ declare global {
 
   type PartialRecord<T extends string | number | symbol, K = unknown> = { [key in T]?: K };
 
-  type OR<T, K = {}> =
-    | ({ [key in keyof T]: T[key] } & { [key in keyof K]?: never })
-    | ({ [key in keyof T]?: never } & { [key in keyof K]?: K[key] });
+type PartialRecord<K extends keyof any, V = unknown> = { [key in K]?: V };
+  
+type OR<T, K> =
+  | (T & { [P in Exclude<keyof K, keyof T>]?: never })
+  | (K & { [P in Exclude<keyof T, keyof K>]?: never });
 
   type DeepPartial<T> = T extends object
     ? {
