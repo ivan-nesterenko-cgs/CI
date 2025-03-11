@@ -13,8 +13,6 @@ type FindOneOptionsExtended = {
   select?: ExtractKeys<Example>[];
 };
 
-type Example = { hello: false; gg: { pp: string } };
-
 type FindManyOptionsExtended = {
   entityManager?: EntityManager;
   relations?: ExtractKeys<Example>;
