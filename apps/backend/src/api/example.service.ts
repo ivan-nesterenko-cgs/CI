@@ -1,17 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Example } from "./entities/example.entity";
-import {
-  DeepPartial,
-  FindOneOptions,
-  FindManyOptions,
-  Repository,
-  FindOptionsWhere,
-  EntityManager,
-  FindOptionsOrder,
-} from "typeorm";
+import { DeepPartial, FindOneOptions, FindManyOptions, Repository, FindOptionsWhere, EntityManager } from "typeorm";
 import { CreateExampleDto } from "./dto";
 import { convertJoinedStringToObject } from "../../../../packages/utils/convertStringToObject";
+import { Order } from "../../../../packages/types/order";
 
 type FindOneOptionsExtended = {
   entityManager?: EntityManager;
@@ -26,8 +19,9 @@ type FindManyOptionsExtended = {
   relations?: ExtractKeys<Example>;
   skip?: number;
   take?: number;
-  order?: FindOptionsOrder<Example>;
+  order?: Order;
   select?: ExtractKeys<Example>[];
+  sortBy?: ExtractKeys<Example>[];
 };
 
 @Injectable()
@@ -44,11 +38,22 @@ export class ExampleService implements BaseService {
     return entityManager.findOne(Example, { where, select: convertJoinedStringToObject(select, true), ...params });
   }
 
-  async findManyExample(
+  async findManyExamples(
     where: FindManyOptions<Example>,
-    { entityManager = this.exampleRepository.manager, select = [], ...params }: FindManyOptionsExtended = {},
+    {
+      entityManager = this.exampleRepository.manager,
+      select = [],
+      sortBy = [],
+      order,
+      ...params
+    }: FindManyOptionsExtended = {},
   ) {
-    return entityManager.find(Example, { where, select: convertJoinedStringToObject(select, true), ...params });
+    return entityManager.find(Example, {
+      where,
+      select: convertJoinedStringToObject(select, true),
+      order: convertJoinedStringToObject(sortBy, order),
+      ...params,
+    });
   }
 
   async findOneExampleOrThrow(where: FindOneOptions<Example>, params: FindOneOptionsExtended = {}) {
@@ -56,8 +61,8 @@ export class ExampleService implements BaseService {
     if (!example) throw new NotFoundException("Example not found");
     return example;
   }
-  async findManyExampleOrThrow(where: FindManyOptions<Example>, params: FindManyOptionsExtended = {}) {
-    const example = await this.findManyExample(where, params);
+  async findManyExamplesOrThrow(where: FindManyOptions<Example>, params: FindManyOptionsExtended = {}) {
+    const example = await this.findManyExamples(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;
   }
