@@ -7,20 +7,20 @@ import { convertJoinedStringToObject } from "../../../../packages/utils/convertS
 import { Order } from "../../../../packages/types/order";
 import { BaseService } from "../core/service";
 
-type FindOneOptionsExtended = {
+type FindOneOptionsExtended<T extends BaseEntity> = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<Example>;
-  select?: ExtractKeys<Example>[];
+  relations?: ExtractKeys<T>;
+  select?: ExtractKeys<T>[];
 };
 
-type FindManyOptionsExtended = {
+type FindManyOptionsExtended<T extends BaseEntity> = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<Example>;
+  relations?: ExtractKeys<T>;
   skip?: number;
   take?: number;
   order?: Order;
-  select?: ExtractKeys<Example>[];
-  sortBy?: ExtractKeys<Example>[];
+  select?: ExtractKeys<T>[];
+  sortBy?: ExtractKeys<T>[];
   search?: string;
 };
 
@@ -35,9 +35,13 @@ export class ExampleService extends BaseService {
 
   async findOneExample(
     where: FindOneOptions<Example>,
-    { entityManager = this.exampleRepository.manager, select = [], ...params }: FindOneOptionsExtended = {},
+    { entityManager = this.exampleRepository.manager, select = [],relations, ...params }: FindOneOptionsExtended<Example> = {},
   ) {
-    return entityManager.findOne(Example, { where, select: convertJoinedStringToObject(select, true), ...params });
+    return entityManager.findOne(Example, { 
+      where,       
+      select: convertJoinedStringToObject(select as string[], true),
+      relations: relations as string[],
+      ...params });
   }
 
   async findManyExamples(
@@ -49,22 +53,23 @@ export class ExampleService extends BaseService {
       order,
       search,
       ...params
-    }: FindManyOptionsExtended = {},
+    }: FindManyOptionsExtended<Example> = {},
   ) {
     return entityManager.find(Example, {
       where,
-      select: convertJoinedStringToObject(select, true),
-      order: convertJoinedStringToObject(sortBy, order),
+      select: convertJoinedStringToObject(select as string[], true),
+      order: convertJoinedStringToObject(sortBy as string[], order),
+      relations: relations as string[],
       ...params,
     });
   }
 
-  async findOneExampleOrThrow(where: FindOneOptions<Example>, params: FindOneOptionsExtended = {}) {
+  async findOneExampleOrThrow(where: FindOneOptions<Example>, params: FindOneOptionsExtended<Example> = {}) {
     const example = await this.findOneExample(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;
   }
-  async findManyExamplesOrThrow(where: FindManyOptions<Example>, params: FindManyOptionsExtended = {}) {
+  async findManyExamplesOrThrow(where: FindManyOptions<Example>, params: FindManyOptionsExtended<Example> = {}) {
     const example = await this.findManyExamples(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;
