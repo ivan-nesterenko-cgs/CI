@@ -7,20 +7,25 @@ import { convertJoinedStringToObject } from "../../../../packages/utils/convertS
 import { Order } from "../../../../packages/types/order";
 import { BaseService } from "../core/service";
 
-type FindOneOptionsExtended<T extends BaseEntity> = {
+type ExtractedEntityKeys<Entity extends BaseEntity> = Omit<
+  ExtractKeys<Entity>,
+  'save' | 'id' | 'hasId' | 'remove' | 'softRemove' | 'recover' | 'reload'
+>;
+
+type FindOneOptionsExtended<Entity extends BaseEntity> = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<T>;
-  select?: ExtractKeys<T>[];
+  relations?: ExtractedEntityKeys<Entity>[];
+  select?: ExtractedEntityKeys<Entity>[];
 };
 
-type FindManyOptionsExtended<T extends BaseEntity> = {
+type FindManyOptionsExtended<Entity extends BaseEntity> = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<T>;
+  relations?: ExtractedEntityKeys<Entity>[];
   skip?: number;
   take?: number;
   order?: Order;
-  select?: ExtractKeys<T>[];
-  sortBy?: ExtractKeys<T>[];
+  select?: ExtractedEntityKeys<Entity>[];
+  sortBy?: ExtractedEntityKeys<Entity>[];
   search?: string;
 };
 
