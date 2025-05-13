@@ -1,7 +1,7 @@
-import { BaseService } from '@core/service';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from '@shared/types/order.type';
+import { BaseService } from "@core/service";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Order } from "@shared/types/order.type";
 import {
   DeepPartial,
   EntityManager,
@@ -10,10 +10,10 @@ import {
   FindOptionsSelect,
   FindOptionsWhere,
   Repository,
-} from 'typeorm';
+} from "typeorm";
 
-import { CreateExampleDto } from '../dto';
-import { Example } from './entities/example.entity';
+import { PatchExample, CreateExample } from "./schemas";
+import { Example } from "./entities/example.entity";
 
 type FindOneOptionsExtended = {
   entityManager?: EntityManager;
@@ -33,7 +33,7 @@ type FindManyOptionsExtended = {
 };
 
 @Injectable()
-export class ExampleService extends BaseService implements BaseServiceAbstract {
+export class ExampleActionsService extends BaseService implements BaseServiceAbstract {
   constructor(
     @InjectRepository(Example)
     private exampleRepository: Repository<Example>,
@@ -43,11 +43,7 @@ export class ExampleService extends BaseService implements BaseServiceAbstract {
 
   async findOneExample(
     where: FindOptionsWhere<Example>,
-    {
-      entityManager = this.exampleRepository.manager,
-      select = [],
-      ...params
-    }: FindOneOptionsExtended = {},
+    { entityManager = this.exampleRepository.manager, select = [], ...params }: FindOneOptionsExtended = {},
   ) {
     return entityManager.findOne(Example, {
       where,
@@ -80,12 +76,9 @@ export class ExampleService extends BaseService implements BaseServiceAbstract {
     });
   }
 
-  async findOneExampleOrThrow(
-    where: FindOptionsWhere<Example>,
-    params: FindOneOptionsExtended = {},
-  ) {
+  async findOneExampleOrThrow(where: FindOptionsWhere<Example>, params: FindOneOptionsExtended = {}) {
     const example = await this.findOneExample(where, params);
-    if (!example) throw new NotFoundException('Example not found');
+    if (!example) throw new NotFoundException("Example not found");
     return example;
   }
   async findManyExamplesOrThrow(
@@ -93,7 +86,7 @@ export class ExampleService extends BaseService implements BaseServiceAbstract {
     params: FindManyOptionsExtended = {},
   ) {
     const example = await this.findManyExamples(where, params);
-    if (!example) throw new NotFoundException('Example not found');
+    if (!example) throw new NotFoundException("Example not found");
     return example;
   }
 
@@ -111,8 +104,15 @@ export class ExampleService extends BaseService implements BaseServiceAbstract {
     return entityManager.delete(Example, where);
   }
 
+  async patchExampleBySchema(
+    { where, data }: { where: FindOptionsWhere<Example>; data: PatchExample },
+    { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
+  ) {
+    return entityManager.update(Example, where, data);
+  }
+
   async createExample(
-    data: CreateExampleDto,
+    data: CreateExample,
     { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
   ) {
     return entityManager.create(Example, data);

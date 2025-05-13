@@ -10,45 +10,50 @@ import {
   ParseUUIDPipe,
   Patch,
   Query,
-} from '@nestjs/common';
-import { Order } from 'src/types/order.type';
-import { FindOptionsSelect } from 'typeorm';
+} from "@nestjs/common";
+import { Order } from "src/types/order.type";
+import { FindOptionsSelect } from "typeorm";
 
-import { PatchExampleDto } from './dto';
-import { Example } from './entities/example.entity';
-import { ExampleService } from './services';
+import { PatchExample, patchExampleSchema, CreateExample, createExampleSchema } from "./schemas";
+import { Example } from "./entities/example.entity";
+import { ExampleService } from "./services";
 
-@Controller('examples')
+@Controller("examples")
 export class ExampleController {
   constructor(private readonly exampleService: ExampleService) {}
 
-  @Get('/:id')
-  getExample(@Param('id', ParseUUIDPipe) id: string) {
+  @Post("/")
+  createExample(@Body(new ZodValidationPipe(createExampleSchema)) data: CreateExample) {
+    return this.exampleService.createScenario(data);
+  }
+
+  @Get("/:id")
+  getExample(@Param("id", ParseUUIDPipe) id: string) {
     return this.exampleService.findOneExampleOrThrow({ id });
   }
 
   @Get()
   getExamples(
-    @Query('take', new ParseIntPipe({ optional: true })) take?: number,
-    @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
-    @Query('order', new ParseEnumPipe({ optional: true })) order?: Order,
-    @Query('sortBy', new ParseArrayPipe({ separator: ',', optional: true }))
+    @Query("take", new ParseIntPipe({ optional: true })) take?: number,
+    @Query("skip", new ParseIntPipe({ optional: true })) skip?: number,
+    @Query("order", new ParseEnumPipe({ optional: true })) order?: Order,
+    @Query("sortBy", new ParseArrayPipe({ separator: ",", optional: true }))
     sortBy?: FindOptionsSelect<Example>[],
-    @Query('search') search?: string,
+    @Query("search") search?: string,
   ) {
-    return this.exampleService.findManyExamplesOrThrow(
-      { id: '' },
-      { take, skip, order, sortBy, search },
-    );
+    return this.exampleService.findManyExamplesOrThrow({ id: "" }, { take, skip, order, sortBy, search });
   }
 
-  @Patch('/:id')
-  patchExamples(@Param('id', ParseUUIDPipe) id: string, @Body() dto: PatchExampleDto) {
-    return this.exampleService.patchExample({ where: { id }, data: dto });
+  @Patch("/:id")
+  patchExample(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(patchExampleSchema)) dto: PatchExample,
+  ) {
+    return this.exampleService.patchExampleBySchema({ where: { id }, data: dto });
   }
 
-  @Delete('/:id')
-  deleteExamples(@Param('id', ParseUUIDPipe) id: string) {
+  @Delete("/:id")
+  deleteExample(@Param("id", ParseUUIDPipe) id: string) {
     return this.exampleService.deleteExample({ id });
   }
 }
