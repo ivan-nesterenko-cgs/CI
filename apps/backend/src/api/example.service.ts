@@ -1,10 +1,11 @@
 import { BaseService } from "@core/service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Order } from "@shared/types";
+import { Order } from "@shared/types/order.type";
 import {
   DeepPartial,
   EntityManager,
+  FindOptionsOrder,
   FindOptionsRelations,
   FindOptionsSelect,
   FindOptionsWhere,
@@ -70,7 +71,7 @@ export class ExampleService extends BaseService {
           acc[key] = order;
         }
         return acc;
-      }, {}),
+      }, {} as FindOptionsOrder<Example>),
       ...params,
     });
   }
