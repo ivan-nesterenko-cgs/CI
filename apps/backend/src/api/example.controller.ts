@@ -36,7 +36,7 @@ export class ExampleController {
     sortBy?: FindOptionsSelect<Example>[],
     @Query("search") search?: string,
   ) {
-    return this.exampleService.findManyExamplesOrThrow({}, { take, skip, order, sortBy, search });
+    return this.exampleService.findManyExamplesOrThrow({ id: "" }, { take, skip, order, sortBy, search });
   }
 
   @Patch("/:id")

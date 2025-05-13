@@ -52,7 +52,7 @@ export class ExampleService extends BaseService {
   }
 
   async findManyExamples(
-    where: FindOptionsWhere<Example>[],
+    where: FindOptionsWhere<Example>[] | FindOptionsWhere<Example>,
     {
       search,
       entityManager = this.exampleRepository.manager,
@@ -80,7 +80,10 @@ export class ExampleService extends BaseService {
     if (!example) throw new NotFoundException("Example not found");
     return example;
   }
-  async findManyExamplesOrThrow(where: FindOptionsWhere<Example>[], params: FindManyOptionsExtended = {}) {
+  async findManyExamplesOrThrow(
+    where: FindOptionsWhere<Example>[] | FindOptionsWhere<Example>,
+    params: FindManyOptionsExtended = {},
+  ) {
     const example = await this.findManyExamples(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;
