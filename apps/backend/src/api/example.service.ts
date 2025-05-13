@@ -33,7 +33,7 @@ type FindManyOptionsExtended = {
 };
 
 @Injectable()
-export class ExampleService extends BaseService {
+export class ExampleService extends BaseService implements BaseServiceAbstract {
   constructor(
     @InjectRepository(Example)
     private exampleRepository: Repository<Example>,
