@@ -1,7 +1,16 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Example } from "./entities/example.entity";
-import { DeepPartial, FindOneOptions, FindManyOptions, Repository, FindOptionsWhere, EntityManager } from "typeorm";
+import {
+  DeepPartial,
+  FindOptionsSelect,
+  FindOneOptions,
+  FindManyOptions,
+  Repository,
+  FindOptionsWhere,
+  EntityManager,
+  FindOptionsRelations,
+} from "typeorm";
 import { CreateExampleDto } from "./dto";
 import { convertJoinedStringToObject } from "../../../../packages/utils/convertStringToObject";
 import { Order } from "../../../../packages/types/order";
@@ -9,18 +18,18 @@ import { BaseService } from "../core/service";
 
 type FindOneOptionsExtended = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<Example>;
-  select?: ExtractKeys<Example>[];
+  relations?: FindOptionsRelations<Example>;
+  select?: FindOptionsSelect<Example>[];
 };
 
 type FindManyOptionsExtended = {
   entityManager?: EntityManager;
-  relations?: ExtractKeys<Example>;
+  relations?: FindOptionsRelations<Example>;
   skip?: number;
   take?: number;
   order?: Order;
-  select?: ExtractKeys<Example>[];
-  sortBy?: ExtractKeys<Example>[];
+  select?: FindOptionsSelect<Example>[];
+  sortBy?: FindOptionsSelect<Example>[];
   search?: string;
 };
 
