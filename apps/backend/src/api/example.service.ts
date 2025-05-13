@@ -1,20 +1,18 @@
+import { BaseService } from "@core/service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Example } from "./entities/example.entity";
+import { Order } from "@shared/types";
 import {
   DeepPartial,
-  FindOptionsSelect,
-  FindOneOptions,
-  FindManyOptions,
-  Repository,
-  FindOptionsWhere,
   EntityManager,
   FindOptionsRelations,
+  FindOptionsSelect,
+  FindOptionsWhere,
+  Repository,
 } from "typeorm";
+
 import { CreateExampleDto } from "./dto";
-import { convertJoinedStringToObject } from "../../../../packages/utils/convertStringToObject";
-import { Order } from "../../../../packages/types/order";
-import { BaseService } from "../core/service";
+import { Example } from "./entities/example.entity";
 
 type FindOneOptionsExtended = {
   entityManager?: EntityManager;
@@ -43,37 +41,46 @@ export class ExampleService extends BaseService {
   }
 
   async findOneExample(
-    where: FindOneOptions<Example>,
+    where: FindOptionsWhere<Example>,
     { entityManager = this.exampleRepository.manager, select = [], ...params }: FindOneOptionsExtended = {},
   ) {
-    return entityManager.findOne(Example, { where, select: convertJoinedStringToObject(select, true), ...params });
+    return entityManager.findOne(Example, {
+      where,
+      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
+      ...params,
+    });
   }
 
   async findManyExamples(
-    where: FindManyOptions<Example>,
+    where: FindOptionsWhere<Example>[],
     {
+      search,
       entityManager = this.exampleRepository.manager,
       select = [],
       sortBy = [],
       order,
-      search,
       ...params
     }: FindManyOptionsExtended = {},
   ) {
     return entityManager.find(Example, {
       where,
-      select: convertJoinedStringToObject(select, true),
-      order: convertJoinedStringToObject(sortBy, order),
+      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
+      order: sortBy.reduce((acc, obj) => {
+        for (const key in obj) {
+          acc[key] = order;
+        }
+        return acc;
+      }, {}),
       ...params,
     });
   }
 
-  async findOneExampleOrThrow(where: FindOneOptions<Example>, params: FindOneOptionsExtended = {}) {
+  async findOneExampleOrThrow(where: FindOptionsWhere<Example>, params: FindOneOptionsExtended = {}) {
     const example = await this.findOneExample(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;
   }
-  async findManyExamplesOrThrow(where: FindManyOptions<Example>, params: FindManyOptionsExtended = {}) {
+  async findManyExamplesOrThrow(where: FindOptionsWhere<Example>[], params: FindManyOptionsExtended = {}) {
     const example = await this.findManyExamples(where, params);
     if (!example) throw new NotFoundException("Example not found");
     return example;

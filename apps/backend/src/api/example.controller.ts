@@ -1,18 +1,22 @@
 import {
-  Controller,
-  Get,
-  Patch,
-  Delete,
-  Query,
-  Param,
-  ParseIntPipe,
   Body,
-  ParseEnumPipe,
+  Controller,
+  Delete,
+  Get,
+  Param,
   ParseArrayPipe,
+  ParseEnumPipe,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Patch,
+  Query,
 } from "@nestjs/common";
-import { ExampleService } from "./example.service";
+import { Order } from "src/types/order.type";
+import { FindOptionsSelect } from "typeorm";
+
 import { PatchExampleDto } from "./dto";
-import { Order } from "../../../../packages/types/order";
+import { Example } from "./entities/example.entity";
+import { ExampleService } from "./example.service";
 
 @Controller("examples")
 export class ExampleController {
@@ -28,7 +32,8 @@ export class ExampleController {
     @Query("take", new ParseIntPipe({ optional: true })) take?: number,
     @Query("skip", new ParseIntPipe({ optional: true })) skip?: number,
     @Query("order", new ParseEnumPipe({ optional: true })) order?: Order,
-    @Query("sortBy", new ParseArrayPipe({ separator: ",", optional: true })) sortBy?: ExtractKeys<Example>[],
+    @Query("sortBy", new ParseArrayPipe({ separator: ",", optional: true }))
+    sortBy?: FindOptionsSelect<Example>[],
     @Query("search") search?: string,
   ) {
     return this.exampleService.findManyExamplesOrThrow({}, { take, skip, order, sortBy, search });
