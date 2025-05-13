@@ -19,7 +19,7 @@ export class ExampleService extends BaseService implements BaseServiceAbstract {
     return this.actionsService.findManyExamplesOrThrow(...args);
   }
 
-  async patchExampleBySchema(...args: ExtractParameters<typeof this.actionsService, "patchExampleBySchema">) {
+  async patchExample(...args: ExtractParameters<typeof this.actionsService, "patchExampleBySchema">) {
     return this.actionsService.patchExampleBySchema(...args);
   }
 
