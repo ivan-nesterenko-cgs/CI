@@ -19,6 +19,8 @@ declare global {
       }[keyof T]
     : never;
 
+  type ExtractParameters<T, K extends keyof T> = T[K] extends (...args: infer P) => any ? P : never;
+
   type Except<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
   type PartialRecord<K extends keyof any, V = unknown> = { [key in K]?: V };

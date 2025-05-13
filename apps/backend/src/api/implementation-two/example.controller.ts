@@ -24,7 +24,7 @@ export class ExampleController {
 
   @Post("/")
   createExample(@Body(new ZodValidationPipe(createExampleSchema)) data: CreateExample) {
-    return this.exampleService.createScenario(data);
+    return this.exampleService.createExample(data);
   }
 
   @Get("/:id")

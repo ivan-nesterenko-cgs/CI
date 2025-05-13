@@ -1,120 +1,33 @@
 import { BaseService } from "@core/service";
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Order } from "@shared/types/order.type";
-import {
-  DeepPartial,
-  EntityManager,
-  FindOptionsOrder,
-  FindOptionsRelations,
-  FindOptionsSelect,
-  FindOptionsWhere,
-  Repository,
-} from "typeorm";
+import { Inject, Injectable } from "@nestjs/common";
 
-import { PatchExample, CreateExample } from "./schemas";
-import { Example } from "./entities/example.entity";
-
-type FindOneOptionsExtended = {
-  entityManager?: EntityManager;
-  relations?: FindOptionsRelations<Example>;
-  select?: FindOptionsSelect<Example>[];
-};
-
-type FindManyOptionsExtended = {
-  entityManager?: EntityManager;
-  relations?: FindOptionsRelations<Example>;
-  skip?: number;
-  take?: number;
-  order?: Order;
-  select?: FindOptionsSelect<Example>[];
-  sortBy?: FindOptionsSelect<Example>[];
-  search?: string;
-};
+import { ExampleActionsService } from "./Example-actions.service";
 
 @Injectable()
 export class ExampleService extends BaseService implements BaseServiceAbstract {
   constructor(
-    @InjectRepository(Example)
-    private exampleRepository: Repository<Example>,
+    @Inject(ExampleActionsService)
+    private actionsService: ExampleActionsService,
   ) {
     super();
   }
 
-  async findOneExample(
-    where: FindOptionsWhere<Example>,
-    { entityManager = this.exampleRepository.manager, select = [], ...params }: FindOneOptionsExtended = {},
-  ) {
-    return entityManager.findOne(Example, {
-      where,
-      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
-      ...params,
-    });
+  async findOneExampleOrThrow(...args: ExtractParameters<typeof this.actionsService, "findOneExampleOrThrow">) {
+    return this.actionsService.findOneExampleOrThrow(...args);
+  }
+  async findManyExamplesOrThrow(...args: ExtractParameters<typeof this.actionsService, "findManyExamplesOrThrow">) {
+    return this.actionsService.findManyExamplesOrThrow(...args);
   }
 
-  async findManyExamples(
-    where: FindOptionsWhere<Example>[] | FindOptionsWhere<Example>,
-    {
-      search,
-      entityManager = this.exampleRepository.manager,
-      select = [],
-      sortBy = [],
-      order,
-      ...params
-    }: FindManyOptionsExtended = {},
-  ) {
-    return entityManager.find(Example, {
-      where,
-      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
-      order: sortBy.reduce((acc, obj) => {
-        for (const key in obj) {
-          acc[key] = order;
-        }
-        return acc;
-      }, {} as FindOptionsOrder<Example>),
-      ...params,
-    });
+  async patchExampleBySchema(...args: ExtractParameters<typeof this.actionsService, "patchExampleBySchema">) {
+    return this.actionsService.patchExampleBySchema(...args);
   }
 
-  async findOneExampleOrThrow(where: FindOptionsWhere<Example>, params: FindOneOptionsExtended = {}) {
-    const example = await this.findOneExample(where, params);
-    if (!example) throw new NotFoundException("Example not found");
-    return example;
-  }
-  async findManyExamplesOrThrow(
-    where: FindOptionsWhere<Example>[] | FindOptionsWhere<Example>,
-    params: FindManyOptionsExtended = {},
-  ) {
-    const example = await this.findManyExamples(where, params);
-    if (!example) throw new NotFoundException("Example not found");
-    return example;
+  async deleteExample(...args: ExtractParameters<typeof this.actionsService, "deleteExample">) {
+    return this.actionsService.deleteExample(...args);
   }
 
-  async patchExample(
-    { where, data }: { where: FindOptionsWhere<Example>; data: DeepPartial<Example> },
-    { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
-  ) {
-    return entityManager.update(Example, where, data);
-  }
-
-  async deleteExample(
-    where: FindOptionsWhere<Example>,
-    { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
-  ) {
-    return entityManager.delete(Example, where);
-  }
-
-  async patchExampleBySchema(
-    { where, data }: { where: FindOptionsWhere<Example>; data: PatchExample },
-    { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
-  ) {
-    return entityManager.update(Example, where, data);
-  }
-
-  async createExample(
-    data: CreateExample,
-    { entityManager = this.exampleRepository.manager }: { entityManager?: EntityManager } = {},
-  ) {
-    return entityManager.create(Example, data);
+  async createExample(...args: ExtractParameters<typeof this.actionsService, "createExample">) {
+    return this.actionsService.createExample(...args);
   }
 }
