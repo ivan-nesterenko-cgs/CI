@@ -19,6 +19,13 @@ declare global {
       }[keyof T]
     : never;
 
+  type RelationKeys<T> = {
+    [K in keyof T]: T[K] extends Function ? never : T[K] extends Date ? never : T[K] extends object ? K : never;
+  }[keyof T];
+
+  type OnlyRelations<T> = Pick<T, RelationKeys<T>>;
+  type OmitRelations<T> = Omit<T, RelationKeys<T>>;
+
   type ExtractParameters<T, K extends keyof T> = T[K] extends (...args: infer P) => any ? P : never;
 
   type Except<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;

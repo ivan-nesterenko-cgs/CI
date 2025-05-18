@@ -16,20 +16,20 @@ import { FindOptionsSelect } from "typeorm";
 
 import { PatchExample, patchExampleSchema, CreateExample, createExampleSchema } from "./schemas";
 import { Example } from "./entities/example.entity";
-import { ExampleService } from "./services";
+import { ExampleActionsService } from "./example-actions.service";
 
 @Controller("examples")
 export class ExampleController {
-  constructor(private readonly exampleService: ExampleService) {}
+  constructor(private readonly exampleActionsService: ExampleActionsService) {}
 
   @Post("/")
   createExample(@Body(new ZodValidationPipe(createExampleSchema)) data: CreateExample) {
-    return this.exampleService.createExample(data);
+    return this.exampleActionsService.createExample(data);
   }
 
   @Get("/:id")
   getExample(@Param("id", ParseUUIDPipe) id: string) {
-    return this.exampleService.findOneExampleOrThrow({ id });
+    return this.exampleActionsService.findOneExampleOrThrow({ id });
   }
 
   @Get()
@@ -41,7 +41,7 @@ export class ExampleController {
     sortBy?: FindOptionsSelect<Example>[],
     @Query("search") search?: string,
   ) {
-    return this.exampleService.findManyExamplesOrThrow({ id: "" }, { take, skip, order, sortBy, search });
+    return this.exampleActionsService.findManyExamplesOrThrow({ id: "" }, { take, skip, order, sortBy, search });
   }
 
   @Patch("/:id")
@@ -49,11 +49,11 @@ export class ExampleController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(patchExampleSchema)) dto: PatchExample,
   ) {
-    return this.exampleService.patchExampleBySchema({ where: { id }, data: dto });
+    return this.exampleActionsService.patchExampleBySchema({ where: { id }, data: dto });
   }
 
   @Delete("/:id")
   deleteExample(@Param("id", ParseUUIDPipe) id: string) {
-    return this.exampleService.deleteExample({ id });
+    return this.exampleActionsService.deleteExample({ id });
   }
 }

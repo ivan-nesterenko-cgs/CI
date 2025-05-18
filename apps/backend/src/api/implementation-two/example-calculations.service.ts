@@ -15,21 +15,21 @@ import {
 import { PatchExample, CreateExample } from "./schemas";
 import { Example } from "./entities/example.entity";
 
-type FindOneOptionsExtended = {
+type FindOneOptionsExtended<Entity extends ObjectLiteral = Example> = {
   entityManager?: EntityManager;
-  relations?: FindOptionsRelations<Example>;
-  select?: FindOptionsSelect<Example>[];
+  relations?: PartialRecord<keyof OnlyRelations<Entity>, boolean>;
+  select?: PartialRecord<keyof OmitRelations<Entity>, boolean>[];
 };
 
-type FindManyOptionsExtended = {
+type FindManyOptionsExtended<Entity extends ObjectLiteral = Example> = {
   entityManager?: EntityManager;
-  relations?: FindOptionsRelations<Example>;
   skip?: number;
   take?: number;
   order?: Order;
-  select?: FindOptionsSelect<Example>[];
-  sortBy?: FindOptionsSelect<Example>[];
   search?: string;
+  sortBy?: PartialRecord<keyof OmitRelations<Entity>, boolean>[];
+  relations?: PartialRecord<keyof OnlyRelations<Entity>, boolean>;
+  select?: PartialRecord<keyof OmitRelations<Entity>, boolean>[];
 };
 
 @Injectable()
@@ -47,7 +47,7 @@ export class ExampleCalculationsService extends BaseService implements BaseServi
   ) {
     return entityManager.findOne(Example, {
       where,
-      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
+      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}) as FindOptionsSelect<Example>,
       ...params,
     });
   }
@@ -65,7 +65,7 @@ export class ExampleCalculationsService extends BaseService implements BaseServi
   ) {
     return entityManager.find(Example, {
       where,
-      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}),
+      select: select.reduce((acc, obj) => ({ ...acc, ...obj }), {}) as FindOptionsSelect<Example>,
       order: sortBy.reduce((acc, obj) => {
         for (const key in obj) {
           acc[key] = order;
