@@ -1,8 +1,21 @@
-export const mapWithFilter = <T>(arr: T[], callBack: (item: T) => boolean) => {
-  const results: T[] = [];
+export const mapWithFilter = <T, B = T>(
+  arr: T[],
+  {
+    transformCallback,
+    filterCallback,
+  }: {
+    transformCallback?: (item: T) => B;
+    filterCallback?: (item: B) => boolean;
+  },
+): B[] => {
+  const results: B[] = [];
 
   for (const item of arr) {
-    if (callBack(item)) results.push(item);
+    const transformed = transformCallback ? transformCallback(item) : (item as unknown as B);
+
+    if (!filterCallback || filterCallback(transformed)) {
+      results.push(transformed);
+    }
   }
 
   return results;
